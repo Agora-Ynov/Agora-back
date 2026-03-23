@@ -1,0 +1,42 @@
+---
+description: Convention de messages de commit Git pour le projet AGORA
+alwaysApply: true
+---
+
+# Convention de commits Git - AGORA
+
+A chaque fois que tu aides a preparer un commit Git, respecte strictement cette convention.
+
+## Format obligatoire
+
+```
+type(module): description courte
+```
+
+## Types autorises
+
+| Type | Usage |
+|------|-------|
+| `feat` | Nouvelle fonctionnalite |
+| `fix` | Correctif de bug |
+| `chore` | Dependances, config, tooling |
+| `test` | Tests unitaires |
+| `docs` | Documentation |
+| `refactor` | Refactoring sans impact fonctionnel |
+
+## Regles
+
+- Ne jamais proposer un message hors convention
+- Si plusieurs types semblent possibles, choisir le plus representatif du lot de changements
+- Toujours proposer UN SEUL commit coherent pour une etape
+- Ne jamais inventer de message sans analyser les fichiers modifies
+
+## Modele de branches
+
+- `main` = production stable, jamais de push direct
+- `develop` = branche d'integration
+- `feature/xxx` = une branche par fonctionnalite
+- `fix/xxx` = hotfix
+- `fix/deps-xxx` = mises a jour de dependances
+
+Si la branche courante n'est pas `feature/...`, rappeler la bonne pratique sans bloquer le commit.
