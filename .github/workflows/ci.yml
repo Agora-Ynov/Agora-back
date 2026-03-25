@@ -12,6 +12,7 @@ concurrency:
 
 jobs:
 
+
   # ─────────────────────────────
   # 🏗️ BUILD
   # ─────────────────────────────
@@ -37,29 +38,18 @@ jobs:
           name: build-artifact
           path: target/
 
-
+  # ─────────────────────────────────────────
+  # JOB 1 : Tests Spring Boot (profil test)
+  # Objectif : démarrer le contexte Spring sans dépendance externe.
+  # Note : les tests d'intégration PostgreSQL seront ajoutés plus tard (tags).
+  # ─────────────────────────────────────────
   # ─────────────────────────────
   # 🧪 TEST
   # ─────────────────────────────
   test:
-    name: Tests (Spring Boot + PostgreSQL)
+    name: Tests (Spring Boot)
     runs-on: ubuntu-latest
     needs: build
-
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_DB: agora_dev
-          POSTGRES_USER: agora
-          POSTGRES_PASSWORD: agora
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U agora"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
 
     steps:
       - uses: actions/checkout@v4
@@ -79,9 +69,6 @@ jobs:
         run: ./mvnw test -q
         env:
           SPRING_PROFILES_ACTIVE: test
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/agora_dev
-          SPRING_DATASOURCE_USERNAME: agora
-          SPRING_DATASOURCE_PASSWORD: agora
 
       - name: Upload reports
         uses: actions/upload-artifact@v4
