@@ -13,29 +13,13 @@ concurrency:
 jobs:
 
   # ─────────────────────────────────────────
-  # JOB 1 : Tests Spring Boot avec PostgreSQL
-  # Valide que le contexte Spring démarre correctement
-  # TODO: ajouter des tests unitaires (sans DB) quand ils existeront
-  # TODO: séparer unit-tests / integration-tests quand @Tag("integration") sera utilisé
+  # JOB 1 : Tests Spring Boot (profil test)
+  # Objectif : démarrer le contexte Spring sans dépendance externe.
+  # Note : les tests d'intégration PostgreSQL seront ajoutés plus tard (tags).
   # ─────────────────────────────────────────
   test:
-    name: Tests (Spring Boot + PostgreSQL)
+    name: Tests (Spring Boot)
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_DB: agora_dev
-          POSTGRES_USER: agora
-          POSTGRES_PASSWORD: agora
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
 
     steps:
       - name: Checkout
@@ -51,9 +35,7 @@ jobs:
       - name: Run tests
         run: ./mvnw test -q
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/agora_dev
-          SPRING_DATASOURCE_USERNAME: agora
-          SPRING_DATASOURCE_PASSWORD: agora
+          SPRING_PROFILES_ACTIVE: test
 
       - name: Upload Surefire reports
         uses: actions/upload-artifact@v4
