@@ -1,6 +1,8 @@
 package com.agora.controller;
 
+import com.agora.dto.request.LoginRequestDto;
 import com.agora.dto.request.RegisterRequestDto;
+import com.agora.dto.response.LoginResponseDto;
 import com.agora.dto.response.RegisterResponseDto;
 import com.agora.service.AuthService;
 import jakarta.validation.Valid;
@@ -25,5 +27,11 @@ public class AuthController {
     public ResponseEntity<RegisterResponseDto> register(@Valid @RequestBody RegisterRequestDto request) {
         RegisterResponseDto response = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto request) {
+        LoginResponseDto response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 }

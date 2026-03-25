@@ -1,12 +1,16 @@
 package com.agora.service;
 
 import com.agora.dto.request.RegisterRequestDto;
+import com.agora.dto.request.LoginRequestDto;
+import com.agora.dto.response.LoginResponseDto;
 import com.agora.dto.response.RegisterResponseDto;
 import com.agora.entity.Group;
 import com.agora.entity.GroupMembership;
 import com.agora.entity.User;
 import com.agora.enums.AccountStatus;
 import com.agora.enums.AccountType;
+import com.agora.exception.AuthAccountNotAllowedException;
+import com.agora.exception.AuthInvalidCredentialsException;
 import com.agora.exception.EmailAlreadyExistsException;
 import com.agora.mapper.UserMapper;
 import com.agora.repository.GroupMembershipRepository;
@@ -27,6 +31,7 @@ public class AuthService {
     private final GroupRepository groupRepository;
     private final GroupMembershipRepository groupMembershipRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
     private final UserMapper userMapper;
 
     public AuthService(
@@ -34,12 +39,14 @@ public class AuthService {
             GroupRepository groupRepository,
             GroupMembershipRepository groupMembershipRepository,
             PasswordEncoder passwordEncoder,
+            JwtService jwtService,
             UserMapper userMapper
     ) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.groupMembershipRepository = groupMembershipRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
         this.userMapper = userMapper;
     }
 
@@ -72,5 +79,34 @@ public class AuthService {
         groupMembershipRepository.save(membership);
 
         return userMapper.toRegisterResponse(savedUser);
+    }
+
+    @Transactional(readOnly = true)
+    public LoginResponseDto login(LoginRequestDto request) {
+        String email = request.getEmail().trim();
+        User user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(AuthInvalidCredentialsException::new);
+
+        if (user.getAccountType() != AccountType.AUTONOMOUS) {
+            throw new AuthAccountNotAllowedException("Ce compte n'est pas autorisé à se connecter");
+        }
+        if (user.getAccountStatus() != AccountStatus.ACTIVE) {
+            throw new AuthAccountNotAllowedException("Ce compte n'est pas autorisé à se connecter");
+        }
+        if (user.getPasswordHash() == null || user.getPasswordHash().isBlank()) {
+            throw new AuthInvalidCredentialsException();
+        }
+        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+            throw new AuthInvalidCredentialsException();
+        }
+
+        String token = jwtService.generateAccessToken(user);
+
+        return new LoginResponseDto(
+                token,
+                "Bearer",
+                jwtService.getExpiresInSeconds(),
+                userMapper.toUserSummary(user)
+        );
     }
 }

@@ -46,6 +46,9 @@ class AuthServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private JwtService jwtService;
+
     private AuthService authService;
 
     @BeforeEach
@@ -55,6 +58,7 @@ class AuthServiceTest {
                 groupRepository,
                 groupMembershipRepository,
                 passwordEncoder,
+                jwtService,
                 new UserMapper()
         );
     }
