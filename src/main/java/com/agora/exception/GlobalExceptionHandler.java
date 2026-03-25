@@ -35,6 +35,54 @@ public class GlobalExceptionHandler {
 
     // TODO: Étape sécurité — ajouter handler pour AccessDeniedException et AuthenticationException
 
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleEmailAlreadyExists(
+            EmailAlreadyExistsException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+                HttpStatus.CONFLICT.value(),
+                "Conflict",
+                "EMAIL_ALREADY_EXISTS",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(AuthInvalidCredentialsException.class)
+    public ResponseEntity<ApiError> handleInvalidCredentials(
+            AuthInvalidCredentialsException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Unauthorized",
+                "AUTH_INVALID_CREDENTIALS",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(AuthAccountNotAllowedException.class)
+    public ResponseEntity<ApiError> handleAccountNotAllowed(
+            AuthAccountNotAllowedException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+                HttpStatus.FORBIDDEN.value(),
+                "Forbidden",
+                "AUTH_ACCOUNT_NOT_ALLOWED",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGenericException(
             Exception ex,
