@@ -34,7 +34,7 @@ services:
       # (ex: renommage/historique). Permet de démarrer en dev sans erreur de validation.
       SPRING_FLYWAY_OUT_OF_ORDER: "true"
     ports:
-      - "${BIND_ADDR:-127.0.0.1}:${BACKEND_PORT:-8080}:8080"
+      - "${BIND_ADDR:-127.0.0.1}:${BACKEND_PORT:-8081}:8080"
     restart: unless-stopped
 
   zabbix-agent:
