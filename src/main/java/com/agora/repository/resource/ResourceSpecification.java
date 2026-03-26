@@ -25,13 +25,9 @@ public class ResourceSpecification {
             predicates.add(cb.isTrue(root.get("active")));
 
             // ✅ TYPE
-            if (type != null) {
-                try {
-                    ResourceType resourceType = ResourceType.valueOf(type);
-                    predicates.add(cb.equal(root.get("resourceType"), resourceType));
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("Type invalide: " + type);
-                }
+            if (type != null && !type.isBlank()) {
+                ResourceType resourceType = ResourceType.valueOf(type);
+                predicates.add(cb.equal(root.get("resourceType"), resourceType));
             }
 
             // ✅ CAPACITY

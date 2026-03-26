@@ -42,6 +42,18 @@ public class ResourceServiceImpl implements ResourceService {
             int page,
             int size
     ) {
+        // Validation en amont (évite les exceptions JPA/DAO "wrappées" -> 500)
+        if (type != null && !type.isBlank()) {
+            try {
+                ResourceType.valueOf(type);
+            } catch (IllegalArgumentException ex) {
+                throw new BusinessException(
+                        ErrorCode.VALIDATION_ERROR,
+                        "Type invalide: " + type
+                );
+            }
+        }
+
         Pageable pageable = PageRequest.of(
                 page,
                 Math.min(size, 100),

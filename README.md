@@ -84,25 +84,39 @@ com.agora
  |- config       -> Configuration Spring (Security, OpenAPI)
  |- exception    -> Gestion globale des erreurs
 ```
-# AGORA Backend — Monitoring
+## Monitoring (Zabbix)
 
-## Zabbix Agent intégré
+Le backend intègre un agent Zabbix pour le monitoring.
 
 ### Configuration
+Modifier les variables d'environnement dans le fichier `compose.yaml` (ou `.env`) :
+- `ZBX_SERVER_HOST`: IP du serveur Zabbix.
+- `ZBX_HOSTNAME`: `agora-app` (par défaut).
 
-Modifier dans docker-compose.yml :
+### Accès
+- **Port** : `10050` doit être accessible depuis le serveur Zabbix.
+- **Endpoints Actuator** :
+  - Health : `http://localhost:${BACKEND_PORT:-8081}/actuator/health`
+  - OpenAPI : `http://localhost:${BACKEND_PORT:-8081}/v3/api-docs`
 
-ZBX_SERVER_HOST=IP_DU_SERVEUR_ZABBIX
+## Accès à la base de données (PostgreSQL)
 
-### Hostname
+### Via Docker (CLI)
+Pour ouvrir un shell `psql` directement dans le conteneur :
+```powershell
+docker exec -it agora-db psql -U agora -d agora
+```
 
-agora-app
+Quelques commandes utiles :
+- `\dt` : Lister les tables.
+- `select count(*) from users;` : Compter les utilisateurs.
+- `\q` : Quitter psql.
 
-### Port
+### Via un client externe (DBeaver, DataGrip, pgAdmin)
+- **Host** : `127.0.0.1`
+- **Port** : `${DB_PORT}` (par défaut `5432`)
+- **Database** : `${DB_NAME}` (par défaut `agora`)
+- **User** : `${DB_USER}` (par défaut `agora`)
+- **Password** : `${DB_PASS}` (par défaut `agora`)
 
-10050 doit être accessible depuis le serveur Zabbix.
-
-### Endpoints
-
-- http://localhost:${BACKEND_PORT:-8080}/actuator/health
-- http://localhost:${BACKEND_PORT:-8080}/v3/api-docs
+Toutes ces valeurs sont définies dans votre fichier `.env` à la racine du projet.
