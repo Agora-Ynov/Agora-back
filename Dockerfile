@@ -12,7 +12,7 @@ COPY .mvn .mvn
 
 # Donner les droits
 RUN chmod +x mvnw
-
+RUN sed -i 's/\r$//' mvnw
 # Copier pom
 COPY pom.xml .
 
