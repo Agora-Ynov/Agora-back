@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -114,8 +116,21 @@ public class GlobalExceptionHandler {
 
     // ======================================================
     //  FALLBACK
-    //  TODO: Étape sécurité — ajouter handler AccessDeniedException et AuthenticationException
     // ======================================================
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiError> handleAccessDenied(
+            AccessDeniedException ex,
+            HttpServletRequest request) {
+        return buildError(ErrorCode.ACCESS_DENIED, null, request, ex);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiError> handleAuth(
+            AuthenticationException ex,
+            HttpServletRequest request) {
+        return buildError(ErrorCode.AUTH_REQUIRED, null, request, ex);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(
             Exception ex,
