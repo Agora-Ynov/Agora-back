@@ -5,8 +5,15 @@ import com.agora.dto.request.auth.RegisterRequestDto;
 import com.agora.dto.response.auth.AuthMeResponseDto;
 import com.agora.dto.response.auth.LoginResponseDto;
 import com.agora.dto.response.auth.RegisterResponseDto;
+import com.agora.exception.ApiError;
 import com.agora.service.auth.AuthMeService;
 import com.agora.service.auth.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +49,15 @@ public class AuthController {
     }
 
     @GetMapping("/me")
+    @Operation(summary = "Profil de l'utilisateur connecté", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Profil récupéré"),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Accès refusé (token manquant/invalide)",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))
+            )
+    })
     public ResponseEntity<AuthMeResponseDto> me(Authentication authentication) {
         AuthMeResponseDto response = authMeService.getCurrentUserProfile(authentication);
         return ResponseEntity.ok(response);
