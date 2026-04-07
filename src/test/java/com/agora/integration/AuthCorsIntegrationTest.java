@@ -54,7 +54,18 @@ class AuthCorsIntegrationTest {
                         .header("Access-Control-Request-Method", "POST")
                         .header("Access-Control-Request-Headers", "content-type"))
                 .andExpect(status().isOk())
-                .andExpect(header().string("Access-Control-Allow-Origin", ORIGIN))
+                .andExpect(header().string("Access-Control-Allow-Origin", "*"))
+                .andExpect(header().string("Access-Control-Allow-Credentials", "true"));
+    }
+
+    @Test
+    void options_login_shouldBeAllowedWithCorsHeaders() throws Exception {
+        mockMvc.perform(options("/api/auth/login")
+                        .header("Origin", ORIGIN)
+                        .header("Access-Control-Request-Method", "POST")
+                        .header("Access-Control-Request-Headers", "content-type"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Origin", "*"))
                 .andExpect(header().string("Access-Control-Allow-Credentials", "true"));
     }
 
