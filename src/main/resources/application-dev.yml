@@ -1,3 +1,6 @@
+# CORS : en profil dev, tout reste permis par défaut (voir CorsConfig). Pas de liste stricte ici.
+# Production : restreindre via agora.cors.allowed-origin-patterns dans la config déployée.
+
 spring:
   datasource:
     # Permet de fonctionner en dev :
