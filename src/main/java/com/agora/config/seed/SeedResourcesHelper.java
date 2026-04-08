@@ -9,6 +9,13 @@ import java.util.List;
 
 final class SeedResourcesHelper {
 
+    /**
+     * Image de démo (salle de réunion) — alignée sur {@code V202604080002__update_resource_image_urls_quebec_cite.sql},
+     * utilisée seulement à la création de la ligne.
+     */
+    private static final String IMG_SEED_DEFAULT =
+            "https://meetings.quebec-cite.com/sites/qda/files/styles/gallery_desktop/public/media/image/chateau-laurier-reunion.jpg?itok=KUwS7GbQ";
+
     private final ResourceRepository resourceRepository;
 
     SeedResourcesHelper(ResourceRepository resourceRepository) {
@@ -22,7 +29,7 @@ final class SeedResourcesHelper {
                 250,
                 "Grande salle pour événements jusqu'à 250 personnes",
                 15000,
-                "https://mairie-exemple.fr/images/salle-fetes.jpg",
+                IMG_SEED_DEFAULT,
                 List.of(AccessibilityTag.PMR_ACCESS, AccessibilityTag.PARKING, AccessibilityTag.SOUND_SYSTEM)
         );
 
@@ -32,7 +39,7 @@ final class SeedResourcesHelper {
                 80,
                 "Salle polyvalente pour réunions et activités associatives",
                 8000,
-                "https://mairie-exemple.fr/images/salle-polyvalente.jpg",
+                IMG_SEED_DEFAULT,
                 List.of(AccessibilityTag.PMR_ACCESS)
         );
 
@@ -42,7 +49,7 @@ final class SeedResourcesHelper {
                 null,
                 "Vidéoprojecteur portable avec câble HDMI",
                 5000,
-                "https://mairie-exemple.fr/images/videoproj.jpg",
+                IMG_SEED_DEFAULT,
                 List.of()
         );
 
@@ -52,7 +59,7 @@ final class SeedResourcesHelper {
                 null,
                 "Lot de 50 chaises pliantes — retrait en mairie",
                 3000,
-                "https://mairie-exemple.fr/images/chaises.jpg",
+                IMG_SEED_DEFAULT,
                 List.of()
         );
     }
@@ -67,6 +74,7 @@ final class SeedResourcesHelper {
             List<AccessibilityTag> tags
     ) {
         Resource existing = resourceRepository.findByNameIgnoreCase(name).orElse(null);
+        boolean created = existing == null;
         if (existing == null) {
             existing = new Resource();
             existing.setName(name);
@@ -76,7 +84,9 @@ final class SeedResourcesHelper {
         existing.setCapacity(capacity);
         existing.setDescription(description);
         existing.setDepositAmountCents(depositAmountCents);
-        existing.setImageUrl(imageUrl);
+        if (created) {
+            existing.setImageUrl(imageUrl);
+        }
         existing.setAccessibilityTags(tags);
         existing.setActive(true);
 
