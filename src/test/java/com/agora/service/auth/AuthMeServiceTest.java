@@ -7,6 +7,7 @@ import com.agora.entity.user.User;
 import com.agora.enums.user.AccountStatus;
 import com.agora.enums.user.AccountType;
 import com.agora.exception.auth.AuthUserNotFoundException;
+import com.agora.config.SecurityUtils;
 import com.agora.repository.group.GroupMembershipRepository;
 import com.agora.repository.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,11 +36,14 @@ class AuthMeServiceTest {
     @Mock
     private GroupMembershipRepository groupMembershipRepository;
 
+    @Mock
+    private SecurityUtils securityUtils;
+
     private AuthMeService authMeService;
 
     @BeforeEach
     void setUp() {
-        authMeService = new AuthMeService(userRepository, groupMembershipRepository);
+        authMeService = new AuthMeService(userRepository, groupMembershipRepository, securityUtils);
     }
 
     @Test
@@ -72,6 +76,7 @@ class AuthMeServiceTest {
                 List.of()
         );
 
+        when(securityUtils.getAuthenticatedEmail(authentication)).thenReturn("user@example.com");
         when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
         when(groupMembershipRepository.findAllByUserIdWithGroup(userId)).thenReturn(List.of(membership));
 
@@ -98,6 +103,7 @@ class AuthMeServiceTest {
                 List.of()
         );
 
+        when(securityUtils.getAuthenticatedEmail(authentication)).thenReturn("unknown@example.com");
         when(userRepository.findByEmailIgnoreCase("unknown@example.com")).thenReturn(Optional.empty());
 
         assertThrows(AuthUserNotFoundException.class, () -> authMeService.getCurrentUserProfile(authentication));

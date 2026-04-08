@@ -5,6 +5,7 @@ import com.agora.dto.response.common.PagedResponse;
 import com.agora.dto.response.reservation.ReservationDetailResponseDto;
 import com.agora.dto.response.reservation.ReservationResourceDto;
 import com.agora.dto.response.reservation.ReservationSummaryResponseDto;
+import com.agora.config.SecurityUtils;
 import com.agora.entity.group.Group;
 import com.agora.entity.reservation.Reservation;
 import com.agora.entity.resource.Resource;
@@ -24,19 +25,19 @@ import com.agora.repository.resource.ResourceRepository;
 import com.agora.repository.user.UserRepository;
 import com.agora.service.reservation.ReservationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +55,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final GroupMembershipRepository groupMembershipRepository;
+    private final SecurityUtils securityUtils;
 
     @Override
     @Transactional

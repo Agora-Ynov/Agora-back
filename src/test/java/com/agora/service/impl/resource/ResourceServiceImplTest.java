@@ -1,5 +1,6 @@
 package com.agora.service.impl.resource;
 
+import com.agora.config.SecurityUtils;
 import com.agora.dto.request.resource.ResourceRequest;
 import com.agora.dto.response.resource.TimeSlotDto;
 import com.agora.entity.resource.Resource;
@@ -11,10 +12,12 @@ import com.agora.repository.reservation.ReservationRepository;
 import com.agora.repository.resource.ResourceRepository;
 import com.agora.service.impl.resource.ResourceServiceImpl;
 import com.agora.testutil.ResourceTestData;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.Authentication;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -35,8 +38,16 @@ class ResourceServiceImplTest {
     @Mock
     private ResourceMapper mapper;
 
+    @Mock
+    private SecurityUtils securityUtils;
+
     @InjectMocks
     private ResourceServiceImpl service;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(securityUtils.hasAuthority(any(), anyString())).thenReturn(false);
+    }
 
     // =========================================
     // CREATE

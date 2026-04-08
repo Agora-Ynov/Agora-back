@@ -18,6 +18,7 @@ import com.agora.repository.group.GroupRepository;
 import com.agora.repository.reservation.ReservationRepository;
 import com.agora.repository.resource.ResourceRepository;
 import com.agora.repository.user.UserRepository;
+import com.agora.config.SecurityUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -58,6 +59,9 @@ class ReservationServiceImplTest {
     private GroupRepository groupRepository;
     @Mock
     private GroupMembershipRepository groupMembershipRepository;
+
+    @Mock
+    private SecurityUtils securityUtils;
 
     @InjectMocks
     private ReservationServiceImpl reservationService;

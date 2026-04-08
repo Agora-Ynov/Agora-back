@@ -1,7 +1,5 @@
--- ============================================================
--- V202604070001 - Mise à jour des image_url des ressources seed
--- Remplace les URLs fictives (mairie-exemple.fr) par des images réelles
--- ============================================================
+-- Réapplique les image_url après correction du seed DEV (qui réécrivait les URLs à chaque démarrage).
+-- Même cible que V202604070001 — idempotent.
 
 UPDATE resources SET image_url = 'https://www.team-business-centers.com/wp-content/uploads/2021/07/Location-salle-de-r%C3%A9union-design-Paris-8-570x500.jpg'
 WHERE name = 'Salle des fêtes — Grande salle';

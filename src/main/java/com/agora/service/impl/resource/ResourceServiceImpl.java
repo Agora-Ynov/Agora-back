@@ -1,6 +1,7 @@
 package com.agora.service.impl.resource;
 
 import com.agora.config.Audited;
+import com.agora.config.SecurityUtils;
 import com.agora.dto.request.resource.ResourceRequest;
 import com.agora.dto.response.common.PagedResponse;
 import com.agora.dto.response.resource.ResourceDto;
@@ -17,12 +18,12 @@ import com.agora.repository.resource.ResourceRepository;
 import com.agora.repository.reservation.ReservationRepository;
 import com.agora.repository.resource.ResourceSpecification;
 import com.agora.service.resource.ResourceService;
+import com.agora.service.resource.ResourceSlotTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -47,6 +48,7 @@ public class ResourceServiceImpl implements ResourceService {
     private final ResourceRepository resourceRepository;
     private final ReservationRepository reservationRepository;
     private final ResourceMapper resourceMapper;
+    private final SecurityUtils securityUtils;
 
 
     @Override
@@ -77,9 +79,7 @@ public class ResourceServiceImpl implements ResourceService {
                 Sort.by(Sort.Direction.DESC, "createdAt")
         );
 
-        boolean includeInactive = authentication != null
-                && authentication.getAuthorities() != null
-                && authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SECRETARY_ADMIN"));
+        boolean includeInactive = securityUtils.hasAuthority(authentication, "ROLE_SECRETARY_ADMIN");
 
         Page<Resource> resources = resourceRepository.findAll(
                 ResourceSpecification.filter(includeInactive, type, minCapacity, available, date),
