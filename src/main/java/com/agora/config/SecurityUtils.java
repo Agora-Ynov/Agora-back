@@ -83,8 +83,12 @@ public class SecurityUtils {
         if (authentication instanceof AnonymousAuthenticationToken) {
             return false;
         }
-        for (GrantedAuthority granted : authentication.getAuthorities()) {
-            if (authority.equals(granted.getAuthority())) {
+        var authorities = authentication.getAuthorities();
+        if (authorities == null) {
+            return false;
+        }
+        for (GrantedAuthority granted : authorities) {
+            if (granted != null && authority.equals(granted.getAuthority())) {
                 return true;
             }
         }

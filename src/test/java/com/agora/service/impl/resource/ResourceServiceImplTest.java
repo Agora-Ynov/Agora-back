@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.Authentication;
 
 import java.util.*;
 
@@ -173,5 +174,36 @@ class ResourceServiceImplTest {
         var result = service.getResources(null, null, null, null, null, 0, 10);
 
         assertThat(result.content()).hasSize(1);
+    }
+
+    @Test
+    void getResources_alwaysChecksSecretaryAdminAuthority() {
+        Authentication auth = mock(Authentication.class);
+        when(repository.findAll(
+                ArgumentMatchers.<org.springframework.data.jpa.domain.Specification<Resource>>any(),
+                any(Pageable.class)
+        )).thenReturn(new PageImpl<>(List.of()));
+
+        service.getResources(auth, null, null, null, null, 0, 10);
+
+        verify(securityUtils).hasAuthority(auth, "ROLE_SECRETARY_ADMIN");
+    }
+
+    @Test
+    void getResources_whenSecretaryAdmin_stillQueriesRepository() {
+        Authentication auth = mock(Authentication.class);
+        when(securityUtils.hasAuthority(auth, "ROLE_SECRETARY_ADMIN")).thenReturn(true);
+        when(repository.findAll(
+                ArgumentMatchers.<org.springframework.data.jpa.domain.Specification<Resource>>any(),
+                any(Pageable.class)
+        )).thenReturn(new PageImpl<>(List.of()));
+
+        service.getResources(auth, null, null, null, null, 0, 5);
+
+        verify(securityUtils).hasAuthority(auth, "ROLE_SECRETARY_ADMIN");
+        verify(repository).findAll(
+                ArgumentMatchers.<org.springframework.data.jpa.domain.Specification<Resource>>any(),
+                any(Pageable.class)
+        );
     }
 }

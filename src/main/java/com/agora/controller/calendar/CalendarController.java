@@ -22,7 +22,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Tag(
         name = "Ressources",
-        description = "Catalogue des ressources + calendrier de disponibilité"
+        description = "Catalogue des ressources (salles, équipements) + disponibilités"
 )
 public class CalendarController {
 

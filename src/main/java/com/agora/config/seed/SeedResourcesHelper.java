@@ -17,7 +17,7 @@ final class SeedResourcesHelper {
 
     void ensureResources() {
         ensureResource(
-                "Salle des fêtes — Grande salle",
+                SeedConstants.RESOURCE_GRANDE_SALLE,
                 ResourceType.IMMOBILIER,
                 250,
                 "Grande salle pour événements jusqu'à 250 personnes",
@@ -27,7 +27,7 @@ final class SeedResourcesHelper {
         );
 
         ensureResource(
-                "Salle polyvalente — Petite salle",
+                SeedConstants.RESOURCE_PETITE_SALLE,
                 ResourceType.IMMOBILIER,
                 80,
                 "Salle polyvalente pour réunions et activités associatives",
@@ -37,7 +37,7 @@ final class SeedResourcesHelper {
         );
 
         ensureResource(
-                "Vidéoprojecteur Epson EB-X51",
+                SeedConstants.RESOURCE_VIDEO_PROJECTEUR,
                 ResourceType.MOBILIER,
                 null,
                 "Vidéoprojecteur portable avec câble HDMI",
@@ -47,7 +47,7 @@ final class SeedResourcesHelper {
         );
 
         ensureResource(
-                "Chaises pliantes (lot de 50)",
+                SeedConstants.RESOURCE_CHAISES,
                 ResourceType.MOBILIER,
                 null,
                 "Lot de 50 chaises pliantes — retrait en mairie",

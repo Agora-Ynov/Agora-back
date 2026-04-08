@@ -2,6 +2,8 @@ package com.agora.repository.reservation;
 
 import com.agora.entity.reservation.Reservation;
 import com.agora.enums.reservation.ReservationStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,9 +11,20 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ReservationRepository extends JpaRepository<Reservation, UUID> {
+
+    Page<Reservation> findByUser_IdOrderByReservationDateDescCreatedAtDesc(UUID userId, Pageable pageable);
+
+    Optional<Reservation> findByIdAndUser_Id(UUID id, UUID userId);
+
+    boolean existsByResource_IdAndReservationDateAndSlotStart(
+            UUID resourceId,
+            LocalDate reservationDate,
+            LocalTime slotStart
+    );
 
     @Query("""
             select (count(r) > 0)

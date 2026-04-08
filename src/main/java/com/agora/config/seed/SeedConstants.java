@@ -4,6 +4,12 @@ final class SeedConstants {
 
     private SeedConstants() {}
 
+    /** Noms exacts — alignés sur {@link SeedResourcesHelper} et les migrations ressources. */
+    static final String RESOURCE_GRANDE_SALLE = "Salle des fêtes — Grande salle";
+    static final String RESOURCE_PETITE_SALLE = "Salle polyvalente — Petite salle";
+    static final String RESOURCE_VIDEO_PROJECTEUR = "Vidéoprojecteur Epson EB-X51";
+    static final String RESOURCE_CHAISES = "Chaises pliantes (lot de 50)";
+
     static final String DEFAULT_PASSWORD = "Password123!";
 
     static final String GROUP_PUBLIC = "Public";

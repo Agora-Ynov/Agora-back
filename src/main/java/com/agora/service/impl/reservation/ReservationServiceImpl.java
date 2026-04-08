@@ -1,7 +1,9 @@
 package com.agora.service.impl.reservation;
 
 import com.agora.dto.request.reservation.CreateReservationRequestDto;
+import com.agora.dto.response.common.PagedResponse;
 import com.agora.dto.response.reservation.ReservationDetailResponseDto;
+import com.agora.dto.response.reservation.ReservationListItemDto;
 import com.agora.dto.response.reservation.ReservationResourceDto;
 import com.agora.entity.group.Group;
 import com.agora.entity.reservation.Reservation;
@@ -22,10 +24,13 @@ import com.agora.repository.user.UserRepository;
 import com.agora.config.SecurityUtils;
 import com.agora.service.reservation.ReservationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -121,6 +126,79 @@ public class ReservationServiceImpl implements ReservationService {
                 saved.getPurpose(),
                 List.of(),
                 saved.getRecurringGroupId()
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PagedResponse<ReservationListItemDto> listMyReservations(Authentication authentication, int page, int size) {
+        String email = securityUtils.getAuthenticatedEmail(authentication);
+        User user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new AuthUserNotFoundException(email));
+
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        int safePage = Math.max(page, 0);
+
+        Page<Reservation> result = reservationRepository.findByUser_IdOrderByReservationDateDescCreatedAtDesc(
+                user.getId(),
+                PageRequest.of(safePage, safeSize)
+        );
+
+        List<ReservationListItemDto> content = result.getContent().stream()
+                .map(this::toListItem)
+                .toList();
+
+        return new PagedResponse<>(
+                content,
+                result.getTotalElements(),
+                result.getTotalPages(),
+                result.getNumber(),
+                result.getSize()
+        );
+    }
+
+    @Override
+    @Transactional
+    public void cancelReservation(UUID reservationId, Authentication authentication) {
+        String email = securityUtils.getAuthenticatedEmail(authentication);
+        User user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new AuthUserNotFoundException(email));
+
+        Reservation reservation = reservationRepository
+                .findByIdAndUser_Id(reservationId, user.getId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "Réservation introuvable"));
+
+        if (reservation.getStatus() == ReservationStatus.CANCELLED) {
+            return;
+        }
+
+        reservation.setStatus(ReservationStatus.CANCELLED);
+        reservation.setCancelledAt(Instant.now());
+        reservationRepository.save(reservation);
+    }
+
+    private ReservationListItemDto toListItem(Reservation r) {
+        Resource resource = r.getResource();
+        int depositFull = (int) Math.round(resource.getDepositAmountCents());
+        int depositApplied = depositFull;
+        DepositStatus depositStatus = switch (r.getStatus()) {
+            case CANCELLED -> DepositStatus.REFUNDED;
+            default -> DepositStatus.DEPOSIT_PENDING;
+        };
+
+        return new ReservationListItemDto(
+                r.getId(),
+                resource.getName(),
+                resource.getResourceType(),
+                r.getReservationDate(),
+                r.getSlotStart(),
+                r.getSlotEnd(),
+                r.getStatus(),
+                depositStatus,
+                depositApplied,
+                depositFull,
+                "Aucune remise",
+                r.getCreatedAt()
         );
     }
 

@@ -2,6 +2,7 @@ package com.agora.config.seed;
 
 import com.agora.repository.group.GroupMembershipRepository;
 import com.agora.repository.group.GroupRepository;
+import com.agora.repository.reservation.ReservationRepository;
 import com.agora.repository.resource.ResourceRepository;
 import com.agora.repository.user.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -26,19 +27,22 @@ public class DevSeedRunner implements CommandLineRunner {
     private final GroupMembershipRepository groupMembershipRepository;
     private final PasswordEncoder passwordEncoder;
     private final ResourceRepository resourceRepository;
+    private final ReservationRepository reservationRepository;
 
     public DevSeedRunner(
             UserRepository userRepository,
             GroupRepository groupRepository,
             GroupMembershipRepository groupMembershipRepository,
             PasswordEncoder passwordEncoder,
-            ResourceRepository resourceRepository
+            ResourceRepository resourceRepository,
+            ReservationRepository reservationRepository
     ) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.groupMembershipRepository = groupMembershipRepository;
         this.passwordEncoder = passwordEncoder;
         this.resourceRepository = resourceRepository;
+        this.reservationRepository = reservationRepository;
     }
 
     @Override
@@ -60,6 +64,7 @@ public class DevSeedRunner implements CommandLineRunner {
         memberships.ensureMembership(users.admin(), groups.council());
 
         new SeedResourcesHelper(resourceRepository).ensureResources();
+        new SeedReservationsHelper(reservationRepository, resourceRepository).ensureSeedReservations(users);
     }
 }
 
