@@ -109,12 +109,22 @@ class ReservationRepositoryMyReservationsTest {
                 ReservationStatus.CONFIRMED,
                 PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "createdAt").and(Sort.by(Sort.Direction.DESC, "id")))
         );
+        var pageSecondCall = reservationRepository.findByUser_IdAndStatus(
+                user.getId(),
+                ReservationStatus.CONFIRMED,
+                PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "createdAt").and(Sort.by(Sort.Direction.DESC, "id")))
+        );
 
         assertThat(page.getContent()).hasSize(2);
+        assertThat(pageSecondCall.getContent()).hasSize(2);
+
         List<Reservation> content = page.getContent();
+        List<Reservation> contentSecondCall = pageSecondCall.getContent();
+
         assertThat(content.get(0).getCreatedAt()).isEqualTo(content.get(1).getCreatedAt());
-        assertThat(content.get(0).getId().compareTo(content.get(1).getId())).isPositive();
         assertThat(content).extracting(Reservation::getId).containsExactlyInAnyOrder(first.getId(), second.getId());
+        assertThat(contentSecondCall).extracting(Reservation::getId)
+                .containsExactly(content.get(0).getId(), content.get(1).getId());
     }
 
     private Reservation persistReservation(
