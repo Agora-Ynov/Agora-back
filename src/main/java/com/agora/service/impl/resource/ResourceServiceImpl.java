@@ -15,6 +15,7 @@ import com.agora.mapper.resource.ResourceMapper;
 import com.agora.repository.resource.ResourceRepository;
 import com.agora.repository.resource.ResourceSpecification;
 import com.agora.service.resource.ResourceService;
+import com.agora.service.resource.ResourceSlotTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -96,11 +97,12 @@ public class ResourceServiceImpl implements ResourceService {
                         "Ressource introuvable"
                 ));
 
-        // TODO brancher sur réservation réelle
+        // TODO brancher sur réservation réelle (disponibilité mockée)
+        var grid = ResourceSlotTemplate.defaultSlots();
         return List.of(
-                new TimeSlotDto("08:00", "09:00", true),
-                new TimeSlotDto("09:00", "10:00", false),
-                new TimeSlotDto("10:00", "11:00", true)
+                new TimeSlotDto(grid.get(0).startLabel(), grid.get(0).endLabel(), true),
+                new TimeSlotDto(grid.get(1).startLabel(), grid.get(1).endLabel(), false),
+                new TimeSlotDto(grid.get(2).startLabel(), grid.get(2).endLabel(), true)
         );
     }
 

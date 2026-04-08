@@ -4,6 +4,7 @@ import com.agora.entity.reservation.Reservation;
 import com.agora.enums.reservation.ReservationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -27,5 +28,20 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
             LocalTime slotStart,
             LocalTime slotEnd,
             List<ReservationStatus> activeStatuses
+    );
+
+    @Query("""
+            select r from Reservation r
+            join fetch r.resource res
+            where res.id in :resourceIds
+              and r.reservationDate >= :fromInclusive
+              and r.reservationDate <= :toInclusive
+              and r.status in :statuses
+            """)
+    List<Reservation> findBlockingReservationsForCalendar(
+            @Param("resourceIds") List<UUID> resourceIds,
+            @Param("fromInclusive") LocalDate fromInclusive,
+            @Param("toInclusive") LocalDate toInclusive,
+            @Param("statuses") List<ReservationStatus> statuses
     );
 }
