@@ -209,11 +209,11 @@ class ResourceServiceImplTest {
 
         when(repository.findById(resourceId)).thenReturn(Optional.of(resource));
         when(reservationRepository.existsOverlappingSlot(
-                eq(resourceId), eq(date), eq(LocalTime.of(14, 0)), eq(LocalTime.of(15, 0)), anyList()
-        )).thenReturn(true);
-        when(reservationRepository.existsOverlappingSlot(
                 eq(resourceId), eq(date), any(), any(), anyList()
         )).thenReturn(false);
+        when(reservationRepository.existsOverlappingSlot(
+                eq(resourceId), eq(date), eq(LocalTime.of(14, 0)), eq(LocalTime.of(15, 0)), anyList()
+        )).thenReturn(true);
 
         List<TimeSlotDto> slots = service.getSlots(resourceId, date);
 
