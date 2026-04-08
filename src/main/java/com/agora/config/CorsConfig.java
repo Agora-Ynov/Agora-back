@@ -21,7 +21,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CorsConfig {
 
-    private static final List<String> DEFAULT_ORIGIN_PATTERNS = List.of("*");
+    /**
+     * Défaut large en dev : pattern global + liste explicite (localhost, LAN, etc.).
+     * Surcharge possible via {@code agora.cors.allowed-origin-patterns}.
+     */
+    private static final List<String> DEFAULT_ORIGIN_PATTERNS = mergeStarAndExplicitPatterns();
+
+    private static List<String> mergeStarAndExplicitPatterns() {
+        List<String> merged = new ArrayList<>();
+        merged.add("*");
+        merged.addAll(buildDefaultOriginPatterns());
+        return List.copyOf(merged);
+    }
 
     private static List<String> buildDefaultOriginPatterns() {
         List<String> patterns = new ArrayList<>(List.of(
