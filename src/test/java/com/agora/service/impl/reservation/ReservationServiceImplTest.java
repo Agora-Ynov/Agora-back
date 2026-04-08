@@ -19,7 +19,6 @@ import com.agora.repository.reservation.ReservationRepository;
 import com.agora.repository.resource.ResourceRepository;
 import com.agora.repository.user.UserRepository;
 import com.agora.config.SecurityUtils;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -66,12 +65,6 @@ class ReservationServiceImplTest {
 
     @InjectMocks
     private ReservationServiceImpl reservationService;
-
-    @BeforeEach
-    void setUp() {
-        when(securityUtils.getAuthenticatedEmail(any(Authentication.class)))
-                .thenAnswer(invocation -> ((Authentication) invocation.getArgument(0)).getName());
-    }
 
     @Test
     void getMyReservations_shouldFilterByAuthenticatedUserAndMapSummary() {
