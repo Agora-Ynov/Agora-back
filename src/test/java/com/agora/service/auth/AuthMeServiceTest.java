@@ -77,7 +77,7 @@ class AuthMeServiceTest {
         );
 
         when(securityUtils.getAuthenticatedEmail(authentication)).thenReturn("user@example.com");
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(user));
         when(groupMembershipRepository.findAllByUserIdWithGroup(userId)).thenReturn(List.of(membership));
 
         AuthMeResponseDto response = authMeService.getCurrentUserProfile(authentication);
@@ -93,6 +93,7 @@ class AuthMeServiceTest {
         assertEquals(1, response.getGroups().size());
         assertEquals("Public", response.getGroups().getFirst().getName());
         assertEquals(true, response.getGroups().getFirst().isPreset());
+        assertEquals(false, response.isAdminSupport());
     }
 
     @Test
@@ -104,7 +105,7 @@ class AuthMeServiceTest {
         );
 
         when(securityUtils.getAuthenticatedEmail(authentication)).thenReturn("unknown@example.com");
-        when(userRepository.findByEmailIgnoreCase("unknown@example.com")).thenReturn(Optional.empty());
+        when(userRepository.findByJwtSubject("unknown@example.com")).thenReturn(Optional.empty());
 
         assertThrows(AuthUserNotFoundException.class, () -> authMeService.getCurrentUserProfile(authentication));
     }

@@ -1,7 +1,9 @@
 package com.agora.dto.response.auth;
 
+import com.agora.entity.user.ERole;
 import com.agora.enums.user.AccountStatus;
 import com.agora.enums.user.AccountType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -20,6 +22,12 @@ public class AuthMeResponseDto {
     private final AccountType accountType;
     private final AccountStatus status;
     private final String phone;
+    private final List<ERole> roles;
     private final List<UserGroupSummaryDto> groups;
     private final Instant createdAt;
+    /**
+     * Drapeau métier ADMIN_SUPPORT (promotion superadmin), distinct du JWT citoyen / secrétaire.
+     */
+    @Schema(description = "Promotion métier ADMIN_SUPPORT (compte habilité au périmètre support), distinct du rôle JWT SECRETARY_ADMIN.")
+    private final boolean adminSupport;
 }

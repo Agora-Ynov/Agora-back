@@ -40,6 +40,7 @@ class ResourcesIntegrationTest extends IntegrationTestBase {
                 100,
                 "desc",
                 15000,
+                0,
                 ResourceTestData.meetingRoomImage(),
                 List.of("PMR_ACCESS")
         );
@@ -99,6 +100,7 @@ class ResourcesIntegrationTest extends IntegrationTestBase {
                 100,
                 "desc",
                 15000,
+                0,
                 ResourceTestData.meetingRoomImage(),
                 List.of()
         );
@@ -130,6 +132,7 @@ class ResourcesIntegrationTest extends IntegrationTestBase {
                 null,
                 "desc",
                 1000,
+                0,
                 null,
                 List.of()
         );
@@ -156,6 +159,7 @@ class ResourcesIntegrationTest extends IntegrationTestBase {
                 100,
                 "desc",
                 1000,
+                0,
                 null,
                 List.of("INVALID_TAG")
         );

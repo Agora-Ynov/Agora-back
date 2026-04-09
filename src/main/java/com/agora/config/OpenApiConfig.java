@@ -27,8 +27,17 @@ public class OpenApiConfig {
                                 Authentification : Bearer JWT (`Authorization: Bearer <accessToken>`), \
                                 refresh HttpOnly sur `/api/auth/refresh`.
 
-                                Les schémas reflètent le contrat fonctionnel (endpoints, DTOs). \
+                                Contrat complet : routes citoyennes (`/api/reservations`, `/api/resources`, …), \
+                                administration (`/api/admin/**`), superadmin (`/api/superadmin/**`), \
+                                liste d’attente (`/api/waitlist`), activation (`/api/auth/activate`).
+
                                 Documentation interactive : `/swagger-ui.html`, OpenAPI JSON : `/v3/api-docs`.
+
+                                Si `/v3/api-docs` ne liste pas les chemins `/api/admin/**`, l’instance déployée \
+                                n’exécute pas la même version du code que ce dépôt — reconstruire et redéployer.
+
+                                Les balises OpenAPI (`tags`) sont définies sur les contrôleurs pour éviter les doublons \
+                                et permettre la génération de clients (TypeScript, etc.).
                                 """)
                         .version("1.0.0"));
     }

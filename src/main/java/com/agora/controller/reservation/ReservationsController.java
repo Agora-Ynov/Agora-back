@@ -1,5 +1,6 @@
 package com.agora.controller.reservation;
 
+import com.agora.dto.request.reservation.CreateRecurringReservationRequestDto;
 import com.agora.dto.request.reservation.CreateReservationRequestDto;
 import com.agora.dto.response.common.PagedResponse;
 import com.agora.dto.response.reservation.ReservationDetailResponseDto;
@@ -26,13 +27,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/reservations")
 @RequiredArgsConstructor
 @Tag(
-        name = "Réservations",
+        name = "Reservations",
         description = "Gestion des réservations de ressources (créer, consulter, lister)"
 )
 public class ReservationsController {
@@ -121,5 +123,53 @@ public class ReservationsController {
             Authentication authentication
     ) {
         reservationService.cancelReservation(reservationId, authentication);
+    }
+
+    @PostMapping("/recurring")
+    @Operation(
+            summary = "Créer une série de réservations",
+            description = "Génère une réservation par occurrence selon la fréquence, même créneau horaire."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Occurrences créées"),
+            @ApiResponse(responseCode = "400", description = "Paramètres invalides"),
+            @ApiResponse(responseCode = "401", description = "Authentification requise"),
+            @ApiResponse(responseCode = "409", description = "Créneau indisponible sur une occurrence")
+    })
+    public ResponseEntity<List<ReservationSummaryResponseDto>> createRecurringReservations(
+            @Valid @RequestBody CreateRecurringReservationRequestDto request,
+            Authentication authentication
+    ) {
+        List<ReservationSummaryResponseDto> body =
+                reservationService.createRecurringReservations(request, authentication);
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    @GetMapping("/recurring/{recurringGroupId}")
+    @Operation(summary = "Lister les occurrences d'une série")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Liste retournée"),
+            @ApiResponse(responseCode = "401", description = "Authentification requise"),
+            @ApiResponse(responseCode = "404", description = "Série inconnue")
+    })
+    public List<ReservationSummaryResponseDto> listRecurringOccurrences(
+            @PathVariable UUID recurringGroupId,
+            Authentication authentication
+    ) {
+        return reservationService.listRecurringOccurrences(recurringGroupId, authentication);
+    }
+
+    @DeleteMapping("/recurring/{recurringGroupId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Annuler les occurrences futures d'une série")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Annulation effectuée"),
+            @ApiResponse(responseCode = "401", description = "Authentification requise")
+    })
+    public void cancelRecurringSeries(
+            @PathVariable UUID recurringGroupId,
+            Authentication authentication
+    ) {
+        reservationService.cancelRecurringSeries(recurringGroupId, authentication);
     }
 }

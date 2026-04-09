@@ -37,7 +37,13 @@ public enum ErrorCode {
     ),
     INVALID_STATUS_TRANSITION("RES-002", HttpStatus.CONFLICT, "Transition de statut non autorisée (paiement, réservation)"),
     LAST_ADMIN_CONSTRAINT("AUTH-011", HttpStatus.CONFLICT, "Impossible de révoquer le dernier SECRETARY_ADMIN"),
+    ADMIN_SUPPORT_ALREADY("SUP-001", HttpStatus.CONFLICT, "L'utilisateur est déjà ADMIN_SUPPORT"),
+    USER_NOT_ACTIVE_ADMIN_PROMOTION(
+            "SUP-002",
+            HttpStatus.UNPROCESSABLE_ENTITY,
+            "Seuls les comptes actifs peuvent être promus ADMIN_SUPPORT"),
     EMAIL_ALREADY_EXISTS("EMAIL_ALREADY_EXISTS", HttpStatus.CONFLICT, "Email déjà utilisé lors de l'inscription"),
+    ADMIN_SUPPORT_ALREADY_EXISTS("ADMIN_SUPPORT_ALREADY_EXISTS", HttpStatus.CONFLICT, "Cet utilisateur est déjà ADMIN_SUPPORT"),
 
     DOCUMENT_REQUIRED("RES-003", HttpStatus.UNPROCESSABLE_ENTITY, "Pièce justificative obligatoire manquante pour finaliser la réservation"),
     QUOTA_EXCEEDED("RES-004", HttpStatus.UNPROCESSABLE_ENTITY, "Quota de réservations dépassé"),

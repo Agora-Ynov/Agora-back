@@ -46,6 +46,10 @@ public class Resource extends Auditable {
     @Column(name = "deposit_amount_cents", nullable = false)
     private double depositAmountCents;
 
+    /** Tarif de location en centimes ; null si non renseigne (catalogue). */
+    @Column(name = "rental_price_cents")
+    private Double rentalPriceCents;
+
     @Column(name = "image_url")
     private String imageUrl;
 }

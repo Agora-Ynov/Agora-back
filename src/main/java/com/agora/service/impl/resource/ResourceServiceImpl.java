@@ -79,7 +79,9 @@ public class ResourceServiceImpl implements ResourceService {
                 Sort.by(Sort.Direction.DESC, "createdAt")
         );
 
-        boolean includeInactive = securityUtils.hasAuthority(authentication, "ROLE_SECRETARY_ADMIN");
+        boolean includeInactive =
+                securityUtils.hasAuthority(authentication, "ROLE_SECRETARY_ADMIN")
+                        || securityUtils.hasAuthority(authentication, "ROLE_DELEGATE_ADMIN");
 
         Page<Resource> resources = resourceRepository.findAll(
                 ResourceSpecification.filter(includeInactive, type, minCapacity, available, date),

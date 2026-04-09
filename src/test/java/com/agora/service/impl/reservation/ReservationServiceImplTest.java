@@ -19,6 +19,7 @@ import com.agora.repository.reservation.ReservationRepository;
 import com.agora.repository.resource.ResourceRepository;
 import com.agora.repository.user.UserRepository;
 import com.agora.config.SecurityUtils;
+import com.agora.service.impl.audit.AuditService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -63,6 +64,9 @@ class ReservationServiceImplTest {
     @Mock
     private SecurityUtils securityUtils;
 
+    @Mock
+    private AuditService auditService;
+
     @InjectMocks
     private ReservationServiceImpl reservationService;
 
@@ -97,7 +101,7 @@ class ReservationServiceImplTest {
         reservation.setStatus(ReservationStatus.CONFIRMED);
         reservation.setCreatedAt(Instant.parse("2026-03-24T11:00:00Z"));
 
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(user));
         when(reservationRepository.findByUser_Id(eq(userId), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(reservation), PageRequest.of(0, 20), 1));
 
@@ -124,7 +128,7 @@ class ReservationServiceImplTest {
         user.setId(userId);
         user.setEmail("user@example.com");
 
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(user));
         when(reservationRepository.findByUser_IdAndStatus(eq(userId), eq(ReservationStatus.CONFIRMED), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 20), 0));
 
@@ -148,7 +152,7 @@ class ReservationServiceImplTest {
         user.setId(userId);
         user.setEmail("user@example.com");
 
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(user));
         when(reservationRepository.findByUser_Id(eq(userId), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 100), 0));
 
@@ -174,7 +178,7 @@ class ReservationServiceImplTest {
         User user = new User();
         user.setId(UUID.randomUUID());
         user.setEmail("user@example.com");
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(user));
 
         assertThatThrownBy(() -> reservationService.getMyReservations(auth, null, -1, 20))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -219,7 +223,7 @@ class ReservationServiceImplTest {
         saved.setPurpose("Reunion");
         saved.setCreatedAt(Instant.parse("2026-03-24T11:00:00Z"));
 
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(user));
         when(resourceRepository.findById(resourceId)).thenReturn(Optional.of(resource));
         when(reservationRepository.existsOverlappingSlot(any(), any(), any(), any(), anyList())).thenReturn(false);
         when(reservationRepository.save(any(Reservation.class))).thenReturn(saved);
@@ -269,7 +273,7 @@ class ReservationServiceImplTest {
         group.setName("Association locale");
         group.setPreset(false);
 
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(user));
         when(resourceRepository.findById(resourceId)).thenReturn(Optional.of(resource));
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
         when(groupMembershipRepository.existsByUserIdAndGroupId(user.getId(), groupId)).thenReturn(false);
@@ -310,7 +314,7 @@ class ReservationServiceImplTest {
                 .active(true)
                 .build();
 
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(user));
         when(resourceRepository.findById(resourceId)).thenReturn(Optional.of(resource));
         when(reservationRepository.existsOverlappingSlot(any(), any(), any(), any(), anyList())).thenReturn(true);
 
@@ -470,7 +474,7 @@ class ReservationServiceImplTest {
         reservation.setGroup(null);
         reservation.setRecurringGroupId(null);
 
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(user));
         when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(reservation));
 
         var response = reservationService.getReservationById(reservationId, auth);
@@ -497,7 +501,7 @@ class ReservationServiceImplTest {
         user.setId(userId);
         user.setEmail("user@example.com");
 
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(user));
         when(reservationRepository.findById(reservationId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> reservationService.getReservationById(reservationId, auth))
@@ -538,7 +542,7 @@ class ReservationServiceImplTest {
         reservation.setUser(ownerUser);
         reservation.setResource(resource);
 
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(currentUser));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(currentUser));
         when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(reservation));
 
         assertThatThrownBy(() -> reservationService.getReservationById(reservationId, auth))
@@ -579,7 +583,7 @@ class ReservationServiceImplTest {
         reservation.setStatus(ReservationStatus.CONFIRMED);
         reservation.setCancelledAt(null);
 
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(user));
         when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(reservation));
         when(reservationRepository.save(any(Reservation.class))).thenAnswer(invocation -> {
             Reservation saved = invocation.getArgument(0);
@@ -624,7 +628,7 @@ class ReservationServiceImplTest {
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservation.setCancelledAt(Instant.now());
 
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(user));
         when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(reservation));
 
         assertThatThrownBy(() -> reservationService.cancelReservation(reservationId, auth))
@@ -662,7 +666,7 @@ class ReservationServiceImplTest {
         reservation.setResource(resource);
         reservation.setStatus(ReservationStatus.REJECTED);
 
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(user));
         when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(reservation));
 
         assertThatThrownBy(() -> reservationService.cancelReservation(reservationId, auth))
@@ -704,7 +708,7 @@ class ReservationServiceImplTest {
         reservation.setResource(resource);
         reservation.setStatus(ReservationStatus.CONFIRMED);
 
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(currentUser));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(currentUser));
         when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(reservation));
 
         assertThatThrownBy(() -> reservationService.cancelReservation(reservationId, auth))
@@ -727,7 +731,7 @@ class ReservationServiceImplTest {
         user.setId(userId);
         user.setEmail("user@example.com");
 
-        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findByJwtSubject("user@example.com")).thenReturn(Optional.of(user));
         when(reservationRepository.findById(reservationId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> reservationService.cancelReservation(reservationId, auth))

@@ -17,6 +17,7 @@ import java.util.Map;
 public class AuditAspect {
 
     private final AuditService auditService;
+    private final SecurityUtils securityUtils;
 
     @Around("@annotation(audited)")
     public Object audit(ProceedingJoinPoint pjp, Audited audited) throws Throwable {
@@ -49,7 +50,7 @@ public class AuditAspect {
 
             auditService.log(
                     action,
-                    resolveUser(),
+                    resolveActorEmail(),
                     null,
                     details,
                     false
@@ -65,7 +66,7 @@ public class AuditAspect {
 
             auditService.log(
                     action + "_FAILED",
-                    resolveUser(),
+                    resolveActorEmail(),
                     null,
                     details,
                     false
@@ -75,7 +76,10 @@ public class AuditAspect {
         }
     }
 
-    private String resolveUser() {
-        return "SYSTEM";
+    /**
+     * Acteur réel quand JWT présent ({@link SecurityUtils}), sinon repli pour tâches sans contexte HTTP.
+     */
+    private String resolveActorEmail() {
+        return securityUtils.tryGetAuthenticatedEmail().orElse("SYSTEM");
     }
 }

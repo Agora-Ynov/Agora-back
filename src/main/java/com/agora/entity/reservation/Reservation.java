@@ -3,7 +3,9 @@ package com.agora.entity.reservation;
 import com.agora.entity.group.Group;
 import com.agora.entity.resource.Resource;
 import com.agora.entity.user.User;
+import com.agora.enums.reservation.DepositStatus;
 import com.agora.enums.reservation.ReservationStatus;
+import com.agora.enums.payment.PaymentMode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -73,4 +75,27 @@ public class Reservation {
 
     @Column(name = "cancelled_at")
     private Instant cancelledAt;
+
+    @Column(name = "admin_comment", columnDefinition = "TEXT")
+    private String adminComment;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "deposit_status", nullable = false, length = 50)
+    private DepositStatus depositStatus = DepositStatus.DEPOSIT_PENDING;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_mode", length = 50)
+    private PaymentMode paymentMode;
+
+    @Column(name = "payment_comment", columnDefinition = "TEXT")
+    private String paymentComment;
+
+    @Column(name = "check_number", length = 100)
+    private String checkNumber;
+
+    @Column(name = "deposit_updated_at")
+    private Instant depositUpdatedAt;
+
+    @Column(name = "deposit_updated_by_name", length = 255)
+    private String depositUpdatedByName;
 }

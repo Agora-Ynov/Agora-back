@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.slf4j.MDC;
 
 import java.io.IOException;
 import java.util.List;
@@ -71,6 +72,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
-        filterChain.doFilter(request, response);
+        jwtService.extractImpersonatedBy(token).ifPresent(admin -> MDC.put("impersonationAdmin", admin));
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            MDC.remove("impersonationAdmin");
+        }
     }
 }

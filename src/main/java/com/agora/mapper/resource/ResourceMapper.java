@@ -24,6 +24,7 @@ public class ResourceMapper {
                 resource.getCapacity(),
                 resource.getDescription(),
                 resource.getDepositAmountCents(),
+                resource.getRentalPriceCents(),
                 resource.getImageUrl(),
                 mapTagsToString(resource.getAccessibilityTags()),
                 resource.isActive()
@@ -42,6 +43,7 @@ public class ResourceMapper {
                 .capacity(request.capacity())
                 .description(request.description())
                 .depositAmountCents(request.depositAmountCents())
+                .rentalPriceCents((double) request.rentalPriceCents())
                 .imageUrl(request.imageUrl())
                 .accessibilityTags(mapTagsToEnum(request.accessibilityTags()))
                 .active(true)
@@ -59,6 +61,8 @@ public class ResourceMapper {
         resource.setCapacity(request.capacity());
         resource.setDescription(request.description());
         resource.setDepositAmountCents(request.depositAmountCents());
+        resource.setRentalPriceCents((double) request.rentalPriceCents());
+        resource.setImageUrl(request.imageUrl());
         resource.setAccessibilityTags(mapTagsToEnum(request.accessibilityTags()));
 
         // 🔒 IMPORTANT
