@@ -19,6 +19,9 @@
     <!-- ===== PROPERTIES ===== -->
     <properties>
         <java.version>21</java.version>
+        <!-- Seuil global minimal (lignes) : éviter les régressions ; objectif projet ≥90 % sur le périmètre métier (voir README). -->
+        <jacoco.bundle.line.minimum>0.52</jacoco.bundle.line.minimum>
+        <pitest.version>1.15.8</pitest.version>
 
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <lombok.version>1.18.32</lombok.version>
@@ -165,11 +168,17 @@
                 </configuration>
             </plugin>
 
-            <!-- JaCoCo : rapport dans target/site/jacoco/index.html après verify -->
+            <!-- JaCoCo : rapport HTML + contrôle de seuils (verify) -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.12</version>
+                <configuration>
+                    <!-- Données de seed / bootstrap exclus du rapport et du check (hors périmètre métier testé). -->
+                    <excludes>
+                        <exclude>**/com/agora/config/seed/**</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -182,6 +191,71 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>${jacoco.bundle.line.minimum}</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                                <!-- Barre haute sur sous-packages métier déjà couverts (≥90 % lignes). -->
+                                <rule>
+                                    <element>PACKAGE</element>
+                                    <includes>
+                                        <include>com/agora/service/impl/admin</include>
+                                        <include>com/agora/service/impl/calendar</include>
+                                        <include>com/agora/service/impl/resource</include>
+                                    </includes>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.90</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                                <rule>
+                                    <element>PACKAGE</element>
+                                    <includes>
+                                        <include>com/agora/service/impl/audit</include>
+                                    </includes>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.85</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                                <rule>
+                                    <element>PACKAGE</element>
+                                    <includes>
+                                        <include>com/agora/service/impl/waitlist</include>
+                                        <include>com/agora/service/impl/superadmin</include>
+                                    </includes>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.95</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                            <haltOnFailure>true</haltOnFailure>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -224,5 +298,58 @@
 
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Mutation testing (PIT) : mvn -P pitest verify — rapport target/pit-reports/ -->
+        <profile>
+            <id>pitest</id>
+            <!-- PIT fork ses propres JVM : la propriété @{argLine} JaCoCo n'est pas résolue ici → valeur explicite. -->
+            <properties>
+                <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-maven</artifactId>
+                        <version>${pitest.version}</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.pitest</groupId>
+                                <artifactId>pitest-junit5-plugin</artifactId>
+                                <version>1.2.2</version>
+                            </dependency>
+                        </dependencies>
+                        <configuration>
+                            <targetClasses>
+                                <param>com.agora.service.impl.waitlist.WaitlistServiceImpl</param>
+                                <param>com.agora.service.impl.superadmin.SuperadminAdminSupportServiceImpl</param>
+                                <param>com.agora.dto.response.auth.GroupDiscountLabelFormatter</param>
+                                <param>com.agora.config.FlexibleLocalTimeDeserializer</param>
+                            </targetClasses>
+                            <targetTests>
+                                <param>com.agora.service.impl.waitlist.*</param>
+                                <param>com.agora.service.impl.superadmin.*</param>
+                                <param>com.agora.dto.response.auth.GroupDiscountLabelFormatterTest</param>
+                                <param>com.agora.config.FlexibleLocalTimeDeserializerTest</param>
+                            </targetTests>
+                            <mutators>
+                                <mutator>STRONGER</mutator>
+                            </mutators>
+                            <threads>4</threads>
+                            <timestampedReports>false</timestampedReports>
+                            <outputFormats>
+                                <outputFormat>HTML</outputFormat>
+                                <outputFormat>XML</outputFormat>
+                            </outputFormats>
+                            <!-- Seuils sur classes ciblées : relever progressivement (objectif ≥85 % mutations). -->
+                            <mutationThreshold>72</mutationThreshold>
+                            <coverageThreshold>90</coverageThreshold>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

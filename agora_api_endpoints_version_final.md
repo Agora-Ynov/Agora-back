@@ -349,6 +349,8 @@ Mes réservations (paginé).
 
 > Champs **résumé** : `userName` (prénom + nom, ou email si nom vide), `userEmail`, `bookingReference`, `recurringGroupId` (séries).
 
+> **UI (Mes réservations)** : afficher la **référence métier** `bookingReference` (ex. « Réf. 26041000001 ») lorsqu’elle est présente ; ne pas afficher l’UUID interne `id` comme libellé principal.
+
 ---
 
 ### `POST /api/reservations` 🔒
