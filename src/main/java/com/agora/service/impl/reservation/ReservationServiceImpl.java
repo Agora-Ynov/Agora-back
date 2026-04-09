@@ -152,6 +152,7 @@ public class ReservationServiceImpl implements ReservationService {
                     null,
                     Map.of(
                             "reservationId", saved.getId().toString(),
+                            "bookingReference", saved.getBookingReference(),
                             "resourceId", resource.getId().toString(),
                             "resourceName", resource.getName(),
                             "date", saved.getReservationDate().toString(),

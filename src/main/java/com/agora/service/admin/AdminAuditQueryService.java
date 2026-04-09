@@ -189,8 +189,15 @@ public class AdminAuditQueryService {
             return detailsMap;
         }
         LinkedHashMap<String, Object> out = new LinkedHashMap<>(detailsMap);
+        Object bookingRef = detailsMap.get("bookingReference");
+        if (bookingRef != null) {
+            String br = String.valueOf(bookingRef).trim();
+            if (!br.isEmpty()) {
+                out.putIfAbsent("reservationDisplayRef", "Réf. " + br);
+            }
+        }
         Object rid = detailsMap.get("reservationId");
-        if (rid != null) {
+        if (rid != null && !out.containsKey("reservationDisplayRef")) {
             String s = String.valueOf(rid);
             if (s.length() >= 8) {
                 out.putIfAbsent("reservationDisplayRef", "Résa · " + s.substring(0, 8));
