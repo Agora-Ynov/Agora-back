@@ -153,6 +153,18 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- Fusion avec l'agent JaCoCo injecté par @{argLine} -->
+                    <argLine>@{argLine} -XX:+EnableDynamicAgentLoading</argLine>
+                    <trimStackTrace>false</trimStackTrace>
+                    <!-- Logs des tests → target/surefire-reports/*.txt ; console : résumé + échecs -->
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                </configuration>
+            </plugin>
+
             <!-- JaCoCo : rapport dans target/site/jacoco/index.html après verify -->
             <plugin>
                 <groupId>org.jacoco</groupId>
