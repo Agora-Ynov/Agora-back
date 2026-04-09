@@ -61,6 +61,7 @@ class ResourceServiceImplTest {
                 100,
                 "desc",
                 15000,
+                0,
                 ResourceTestData.meetingRoomImage(),
                 List.of("PMR")
         );
@@ -75,6 +76,7 @@ class ResourceServiceImplTest {
                 new com.agora.dto.response.resource.ResourceDto(
                         saved.getId(), "Salle", ResourceType.IMMOBILIER,
                         100, "desc", 15000,
+                        0.0,
                         ResourceTestData.meetingRoomImage(),
                         List.of("PMR"), true
                 )
@@ -117,6 +119,7 @@ class ResourceServiceImplTest {
                 200,
                 "desc",
                 10000,
+                0,
                 ResourceTestData.randomImage(),
                 List.of()
         );
@@ -127,6 +130,7 @@ class ResourceServiceImplTest {
                 new com.agora.dto.response.resource.ResourceDto(
                         id, "New", ResourceType.IMMOBILIER,
                         200, "desc", 10000,
+                        0.0,
                         ResourceTestData.randomImage(),
                         List.of(), true
                 )
@@ -174,6 +178,7 @@ class ResourceServiceImplTest {
                 new com.agora.dto.response.resource.ResourceDto(
                         UUID.randomUUID(), "Salle", ResourceType.IMMOBILIER,
                         100, "desc", 15000,
+                        null,
                         ResourceTestData.equipmentImage(),
                         List.of(), true
                 )

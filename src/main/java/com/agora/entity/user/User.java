@@ -7,11 +7,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -63,6 +60,12 @@ public class User extends Auditable {
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "roles", nullable = false)
     private Set<ERole> roles = new HashSet<>();
+
+    @Column(name = "admin_support", nullable = false)
+    private boolean adminSupport;
+
+    @Column(name = "birth_year")
+    private Integer birthYear;
 
     public void addRole(ERole role) {
         if(this.roles == null) this.roles = new HashSet<>();

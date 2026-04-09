@@ -1,10 +1,12 @@
 package com.agora.repository.reservation;
 
 import com.agora.entity.reservation.Reservation;
+import com.agora.enums.reservation.DepositStatus;
 import com.agora.enums.reservation.ReservationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -14,7 +16,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface ReservationRepository extends JpaRepository<Reservation, UUID> {
+public interface ReservationRepository extends JpaRepository<Reservation, UUID>, JpaSpecificationExecutor<Reservation> {
+
+    long countByReservationDate(LocalDate reservationDate);
+
+    long countByStatus(ReservationStatus status);
+
+    long countByDepositStatus(DepositStatus depositStatus);
 
     Page<Reservation> findByUser_Id(UUID userId, Pageable pageable);
 
@@ -58,5 +66,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
             @Param("fromInclusive") LocalDate fromInclusive,
             @Param("toInclusive") LocalDate toInclusive,
             @Param("statuses") List<ReservationStatus> statuses
+    );
+
+    List<Reservation> findByUser_IdAndRecurringGroupIdOrderByReservationDateAsc(UUID userId, UUID recurringGroupId);
+
+    List<Reservation> findByUser_IdAndRecurringGroupIdAndReservationDateGreaterThanEqual(
+            UUID userId,
+            UUID recurringGroupId,
+            LocalDate fromDateInclusive
     );
 }

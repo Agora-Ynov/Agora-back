@@ -21,8 +21,8 @@ import java.util.UUID;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 @Tag(
-        name = "Ressources",
-        description = "Catalogue des ressources (salles, équipements) + disponibilités"
+        name = "Calendar",
+        description = "Vue calendrier et disponibilités"
 )
 public class CalendarController {
 

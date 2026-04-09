@@ -6,6 +6,13 @@
 
 ---
 
+## 0. OpenAPI (contrat pour le client)
+
+- **JSON** : `GET /v3/api-docs` (Springdoc). Swagger UI : `/swagger-ui.html`.
+- **Synchroniser le front** : dans `Agora-front`, `npm run openapi:sync` (export automatique via le test `OpenApiExportTest` du back, puis génération TypeScript). Détail : `Agora-front/docs/openapi-sync.md`.
+
+---
+
 ## 1. AUTH
 
 ---
@@ -474,7 +481,7 @@ Annule les occurrences futures.
 ---
 
 ### `POST /api/reservations/{reservationId}/documents` 🔒
-Upload PJ. Zéro stockage serveur — le fichier est envoyé directement via Brevo. Max 5 Mo.
+Upload PJ. **Cahier :** zéro stockage binaire applicatif — le fichier doit être relayé vers un canal d’envoi (ex. Brevo). **Implémentation actuelle :** validation taille (max 5 Mo), types MIME autorisés, réservation appartenant à l’utilisateur authentifié ; persistance des **métadonnées** en base (`reservation_documents`) ; relayage via `ReservationAttachmentRelay` (**simulation** `BREVO_SIMULATED` : logs applicatifs `PJ_RELAY` + idempotence documentée sur `reservationDocumentId`) ; **journal d’audit** ligne `RESERVATION_DOCUMENT_UPLOADED` dans `audit_logs` (détails JSON : ids, `relayChannel`, etc.). Voir tests `ReservationDocument*`.
 
 **Body :** `multipart/form-data`
 - `file` : binaire (PDF, JPEG, PNG, DOC, DOCX, XLS, XLSX)
@@ -1074,7 +1081,9 @@ Historique complet de la caution (insert-only, par date desc).
 ### `GET /api/admin/audit` 🔒 Admin
 Journal d'audit complet.
 
-**Query params :** `adminUserId`, `targetUserId`, `impersonationOnly` (bool), `dateFrom`, `dateTo`, `page`, `size`
+**Query params :** `adminUserId` (email, sous-chaîne ou UUID utilisateur → email résolu), `targetUserId` (idem), `impersonationOnly` (`true` = uniquement lignes impersonation), `dateFrom` / `dateTo` (ISO date, fuseau Europe/Paris pour le bornage), `page`, `size`
+
+**Rôles :** `SUPERADMIN`, `SECRETARY_ADMIN`, `ADMIN_SUPPORT` (identique aux autres routes `/api/admin/**`).
 
 **200 :**
 ```json

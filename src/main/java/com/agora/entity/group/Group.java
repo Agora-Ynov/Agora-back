@@ -1,7 +1,11 @@
 package com.agora.entity.group;
 
+import com.agora.enums.group.DiscountAppliesTo;
+import com.agora.enums.group.DiscountType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -28,4 +32,21 @@ public class Group {
 
     @Column(name = "is_preset", nullable = false)
     private boolean preset;
+
+    @Column(name = "can_book_immobilier", nullable = false)
+    private boolean canBookImmobilier = false;
+
+    @Column(name = "can_book_mobilier", nullable = false)
+    private boolean canBookMobilier = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "discount_type", nullable = false, length = 40)
+    private DiscountType discountType = DiscountType.NONE;
+
+    @Column(name = "discount_value", nullable = false)
+    private int discountValue = 0;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "discount_applies_to", nullable = false, length = 40)
+    private DiscountAppliesTo discountAppliesTo = DiscountAppliesTo.ALL;
 }

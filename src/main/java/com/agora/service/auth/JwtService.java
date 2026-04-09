@@ -17,6 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class JwtService {
@@ -24,12 +25,14 @@ public class JwtService {
     private final SecretKey key;
     private final long expiresInSeconds;
     private final long refreshExpiresInSeconds;
+    private final long impersonationExpiresInSeconds;
     private final String adminEmail;
 
     public JwtService(
             @Value("${agora.jwt.secret}") String secret,
             @Value("${agora.jwt.expires-in-seconds}") long expiresInSeconds,
             @Value("${agora.jwt.refresh-expires-in-seconds}") long refreshExpiresInSeconds,
+            @Value("${agora.jwt.impersonation-expires-in-seconds:1800}") long impersonationExpiresInSeconds,
             @Value("${agora.auth.admin-email:admin@agora.local}") String adminEmail
     ) {
         if (secret == null || secret.isBlank()) {
@@ -42,6 +45,7 @@ public class JwtService {
         this.key = Keys.hmacShaKeyFor(bytes);
         this.expiresInSeconds = expiresInSeconds;
         this.refreshExpiresInSeconds = refreshExpiresInSeconds;
+        this.impersonationExpiresInSeconds = Math.max(60, impersonationExpiresInSeconds);
         this.adminEmail = (adminEmail == null) ? "admin@agora.local" : adminEmail.trim();
     }
 
@@ -51,6 +55,32 @@ public class JwtService {
 
     public long getRefreshExpiresInSeconds() {
         return refreshExpiresInSeconds;
+    }
+
+    public long getImpersonationExpiresInSeconds() {
+        return impersonationExpiresInSeconds;
+    }
+
+    /**
+     * Jeton court : {@code sub} = UUID du compte cible (usagers sans email). Claim {@code impersonated_by} = email admin.
+     */
+    public String generateImpersonationAccessToken(User targetUser, String adminEmail) {
+        Instant now = Instant.now();
+        Instant exp = now.plusSeconds(impersonationExpiresInSeconds);
+        List<String> roles = resolveRoles(targetUser);
+        String emailClaim = targetUser.getEmail() != null ? targetUser.getEmail() : "";
+
+        return Jwts.builder()
+                .subject(targetUser.getId().toString())
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(exp))
+                .claim("email", emailClaim)
+                .claim("accountType", targetUser.getAccountType().name())
+                .claim("accountStatus", targetUser.getAccountStatus().name())
+                .claim("roles", roles)
+                .claim("impersonated_by", adminEmail)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public String generateAccessToken(User user) {
@@ -105,6 +135,19 @@ public class JwtService {
         return Collections.emptyList();
     }
 
+    /** Email de l’admin en cas de jeton d’impersonation (claim custom). */
+    public Optional<String> extractImpersonatedBy(String token) {
+        try {
+            String v = parseClaims(token).get("impersonated_by", String.class);
+            if (v == null || v.isBlank()) {
+                return Optional.empty();
+            }
+            return Optional.of(v.trim());
+        } catch (JwtException | IllegalArgumentException ex) {
+            return Optional.empty();
+        }
+    }
+
     public boolean isRefreshTokenValid(String token) {
         try {
             Claims claims = parseClaims(token);
@@ -127,8 +170,11 @@ public class JwtService {
         LinkedHashSet<String> roles = new LinkedHashSet<>();
 
         if (user.getRoles() != null) {
-            if (user.getRoles().contains(ERole.SECRETARY_ADMIN) || user.getRoles().contains(ERole.DELEGATE_ADMIN)) {
+            if (user.getRoles().contains(ERole.SECRETARY_ADMIN)) {
                 roles.add("ROLE_SECRETARY_ADMIN");
+            }
+            if (user.getRoles().contains(ERole.DELEGATE_ADMIN)) {
+                roles.add("ROLE_DELEGATE_ADMIN");
             }
             if (user.getRoles().contains(ERole.SUPERADMIN)) {
                 roles.add("ROLE_SUPERADMIN");
@@ -138,6 +184,10 @@ public class JwtService {
         if (isAdminEmail(user)) {
             roles.add("ROLE_SECRETARY_ADMIN");
             roles.add("ROLE_SUPERADMIN");
+        }
+
+        if (user.isAdminSupport()) {
+            roles.add("ROLE_ADMIN_SUPPORT");
         }
 
         return List.copyOf(roles);

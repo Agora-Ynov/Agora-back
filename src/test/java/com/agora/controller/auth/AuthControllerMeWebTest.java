@@ -4,8 +4,11 @@ import com.agora.config.SecurityConfig;
 import com.agora.dto.response.auth.AuthMeResponseDto;
 import com.agora.dto.response.auth.UserGroupSummaryDto;
 import com.agora.entity.user.ERole;
+import com.agora.enums.group.DiscountAppliesTo;
+import com.agora.enums.group.DiscountType;
 import com.agora.enums.user.AccountStatus;
 import com.agora.enums.user.AccountType;
+import com.agora.service.auth.AccountActivationService;
 import com.agora.service.auth.AuthCookieService;
 import com.agora.service.auth.JwtService;
 import com.agora.service.auth.AuthMeService;
@@ -49,6 +52,9 @@ class AuthControllerMeWebTest {
     @MockBean
     private AuthCookieService authCookieService;
 
+    @MockBean
+    private AccountActivationService accountActivationService;
+
     @Test
     @WithMockUser(username = "user@example.com")
     void me_shouldReturnProfileWhenAuthenticated() throws Exception {
@@ -64,9 +70,17 @@ class AuthControllerMeWebTest {
                 List.of(new UserGroupSummaryDto(
                         UUID.fromString("22222222-2222-2222-2222-222222222222"),
                         "Public",
-                        true
+                        true,
+                        false,
+                        false,
+                        DiscountType.NONE,
+                        0,
+                        DiscountAppliesTo.ALL,
+                        "Plein tarif",
+                        null
                 )),
-                Instant.parse("2026-03-26T10:15:30Z")
+                Instant.parse("2026-03-26T10:15:30Z"),
+                false
         );
 
         when(authMeService.getCurrentUserProfile(any())).thenReturn(response);

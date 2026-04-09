@@ -7,6 +7,7 @@ import com.agora.enums.user.AccountType;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,7 +17,7 @@ class JwtServiceTest {
 
     @Test
     void generateAccessToken_adminEmail_shouldContainSecretaryAdminAndSuperadminRoles() {
-        JwtService jwtService = new JwtService(SECRET, 3600, 7200, "admin@agora.local");
+        JwtService jwtService = new JwtService(SECRET, 3600, 7200, 1800, "admin@agora.local");
         User user = buildUser("admin@agora.local");
 
         String token = jwtService.generateAccessToken(user);
@@ -27,7 +28,7 @@ class JwtServiceTest {
 
     @Test
     void generateAccessToken_nonAdminEmail_shouldContainNoRoles() {
-        JwtService jwtService = new JwtService(SECRET, 3600, 7200, "admin@agora.local");
+        JwtService jwtService = new JwtService(SECRET, 3600, 7200, 1800, "admin@agora.local");
         User user = buildUser("user@agora.local");
 
         String token = jwtService.generateAccessToken(user);
@@ -37,7 +38,7 @@ class JwtServiceTest {
 
     @Test
     void generateAccessToken_secretaryAdminRole_shouldContainSecretaryAdminRole() {
-        JwtService jwtService = new JwtService(SECRET, 3600, 7200, "admin@agora.local");
+        JwtService jwtService = new JwtService(SECRET, 3600, 7200, 1800, "admin@agora.local");
         User user = buildUser("secretary@agora.local");
         user.addRole(ERole.SECRETARY_ADMIN);
 
@@ -48,15 +49,27 @@ class JwtServiceTest {
     }
 
     @Test
-    void generateAccessToken_delegateAdminRole_shouldContainSecretaryAdminRole() {
-        JwtService jwtService = new JwtService(SECRET, 3600, 7200, "admin@agora.local");
+    void generateAccessToken_delegateAdminRole_shouldContainDelegateAdminRole() {
+        JwtService jwtService = new JwtService(SECRET, 3600, 7200, 1800, "admin@agora.local");
         User user = buildUser("delegate@agora.local");
         user.addRole(ERole.DELEGATE_ADMIN);
 
         String token = jwtService.generateAccessToken(user);
 
-        assertThat(jwtService.extractRoles(token))
-                .containsExactly("ROLE_SECRETARY_ADMIN");
+        assertThat(jwtService.extractRoles(token)).containsExactly("ROLE_DELEGATE_ADMIN");
+    }
+
+    @Test
+    void generateImpersonationAccessToken_shouldUseUserIdAsSubjectAndImpersonatedByClaim() {
+        JwtService jwtService = new JwtService(SECRET, 3600, 7200, 1800, "admin@agora.local");
+        User target = buildUser(null);
+        UUID id = UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        target.setId(id);
+        target.setAccountType(AccountType.TUTORED);
+
+        String token = jwtService.generateImpersonationAccessToken(target, "admin@agora.local");
+
+        assertThat(jwtService.extractSubject(token)).isEqualTo(id.toString());
     }
 
     private static User buildUser(String email) {

@@ -19,6 +19,9 @@ public record ResourceRequest(
         @Min(0)
         int depositAmountCents,
 
+        @Min(0)
+        int rentalPriceCents,
+
         @Size(max = 500)
         String imageUrl,
         @NotNull

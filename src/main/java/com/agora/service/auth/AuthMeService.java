@@ -2,6 +2,7 @@ package com.agora.service.auth;
 
 import com.agora.dto.response.auth.AuthMeResponseDto;
 import com.agora.dto.response.auth.UserGroupSummaryDto;
+import com.agora.dto.response.auth.UserGroupSummaryMapping;
 import com.agora.entity.group.GroupMembership;
 import com.agora.entity.user.User;
 import com.agora.exception.auth.AuthUserNotFoundException;
@@ -33,10 +34,10 @@ public class AuthMeService {
 
     @Transactional(readOnly = true)
     public AuthMeResponseDto getCurrentUserProfile(Authentication authentication) {
-        String authenticatedEmail = securityUtils.getAuthenticatedEmail(authentication);
+        String subject = securityUtils.getAuthenticatedEmail(authentication);
 
-        User user = userRepository.findByEmailIgnoreCase(authenticatedEmail)
-                .orElseThrow(() -> new AuthUserNotFoundException(authenticatedEmail));
+        User user = userRepository.findByJwtSubject(subject)
+                .orElseThrow(() -> new AuthUserNotFoundException(subject));
 
         List<UserGroupSummaryDto> groups = groupMembershipRepository.findAllByUserIdWithGroup(user.getId()).stream()
                 .map(this::toGroupSummary)
@@ -52,15 +53,12 @@ public class AuthMeService {
                 user.getPhone(),
                 user.getRoles().stream().toList(),
                 groups,
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                user.isAdminSupport()
         );
     }
 
     private UserGroupSummaryDto toGroupSummary(GroupMembership membership) {
-        return new UserGroupSummaryDto(
-                membership.getGroup().getId(),
-                membership.getGroup().getName(),
-                membership.getGroup().isPreset()
-        );
+        return UserGroupSummaryMapping.fromGroup(membership.getGroup(), null);
     }
 }

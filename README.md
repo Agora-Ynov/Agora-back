@@ -13,9 +13,37 @@ Backend Spring Boot pour la gestion des reservations de ressources municipales (
 
 ### 1) Démarrer la stack Docker (PostgreSQL + backend)
 
-```powershell
+```bash
 docker compose up -d
 ```
+
+Reconstruire l’image backend après changement de code :
+
+```bash
+docker compose up -d --build
+```
+
+Rebuild complet sans cache (image JAR recalculée de zéro — plus long) :
+
+```bash
+docker compose build --no-cache
+docker compose up -d
+```
+
+### Commandes Docker utiles
+
+Les ports exposés dépendent de ton fichier `.env` (ex. `BACKEND_PORT`, `DB_PORT`).
+
+| Action | Commande |
+|--------|----------|
+| État des conteneurs | `docker compose ps` |
+| Logs backend (flux continu) | `docker compose logs backend -f` |
+| Dernières lignes backend | `docker compose logs backend --tail 100` |
+| Arrêter sans supprimer les volumes | `docker compose down` |
+| Arrêter et supprimer les images du projet | `docker compose down --rmi all` |
+| **Réinitialiser la base** (supprime le volume Postgres — perte des données) | `docker compose down -v` puis `docker compose up -d` |
+
+Shell PostgreSQL dans le conteneur : voir la section **Accès à la base de données (PostgreSQL)** plus bas.
 
 ### Alternative: lancer Spring Boot en local (en gardant Postgres via Docker)
 
@@ -51,8 +79,8 @@ Get-Content .env | ForEach-Object {
 
 ## Verification
 
-- Health API: http://localhost:${BACKEND_PORT:-8081}/api/health
-- Swagger UI: http://localhost:${BACKEND_PORT:-8081}/swagger-ui/index.html
+- Health (Actuator): `http://127.0.0.1:${BACKEND_PORT:-8081}/actuator/health` (ajuster le port selon `.env`)
+- Swagger UI: `http://127.0.0.1:${BACKEND_PORT:-8081}/swagger-ui/index.html` (chemin exact : voir `springdoc` si besoin)
 
 ## Variables d'environnement
 
@@ -62,9 +90,9 @@ Voir `.env.example`.
 
 - Port déjà pris (8080/5432): change `BACKEND_PORT` / `DB_PORT` dans `.env` (ou copie `.env.example` → `.env`).
 - Windows: si tu as une erreur de bind sur `127.0.0.1:8080` ("access permissions"), mets `BIND_ADDR=0.0.0.0` dans `.env` (ou change `BACKEND_PORT`).
-- Flyway / migrations incohérentes après des changements d'historique: reset du volume DB dev :
+- Flyway / migrations incohérentes après des changements d'historique: reset du volume DB dev (voir aussi la table *Commandes Docker utiles* plus haut) :
 
-```powershell
+```bash
 docker compose down -v
 docker compose up -d
 ```

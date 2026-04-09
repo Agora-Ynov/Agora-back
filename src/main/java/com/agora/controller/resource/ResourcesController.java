@@ -32,7 +32,7 @@ import java.util.UUID;
 @RequestMapping("/api/resources")
 @RequiredArgsConstructor
 @Tag(
-        name = "Ressources",
+        name = "Resources",
         description = "Catalogue des ressources (salles, équipements) + disponibilités"
 )
 public class ResourcesController {
@@ -122,7 +122,7 @@ public class ResourcesController {
     // ======================================================
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('SECRETARY_ADMIN')")
+    @PreAuthorize("hasAnyRole('SECRETARY_ADMIN', 'DELEGATE_ADMIN')")
     @Operation(summary = "Créer une ressource")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Ressource créée"),
@@ -138,7 +138,7 @@ public class ResourcesController {
     //  UPDATE (ADMIN)
     // ======================================================
     @PutMapping("/{resourceId}")
-    @PreAuthorize("hasRole('SECRETARY_ADMIN')")
+    @PreAuthorize("hasAnyRole('SECRETARY_ADMIN', 'DELEGATE_ADMIN')")
     @Operation(summary = "Modifier une ressource")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Ressource mise à jour"),
@@ -156,7 +156,7 @@ public class ResourcesController {
     // ======================================================
     @DeleteMapping("/{resourceId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasRole('SECRETARY_ADMIN')")
+    @PreAuthorize("hasAnyRole('SECRETARY_ADMIN', 'DELEGATE_ADMIN')")
     @Operation(summary = "Désactiver une ressource (soft delete)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ressource désactivée"),
