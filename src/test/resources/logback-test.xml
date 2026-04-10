@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Réduit le bruit pendant @SpringBootTest / @WebMvcTest : WARN+ uniquement. -->
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{40} - %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+    </appender>
+    <!-- Bruit courant en @WebMvcTest : 403/404 exercés volontairement, auto-config sécurité -->
+    <logger name="com.agora.exception.GlobalExceptionHandler" level="ERROR"/>
+    <logger name="org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration"
+            level="ERROR"/>
+    <!-- @SpringBootTest / @DataJpaTest : pas de SQL ni avertissements Hibernate en console -->
+    <logger name="org.hibernate.SQL" level="OFF"/>
+    <logger name="org.hibernate.orm.jdbc.bind" level="OFF"/>
+    <logger name="org.hibernate.engine.jdbc.spi.SqlStatementLogger" level="OFF"/>
+    <logger name="org.hibernate.engine.jdbc.spi.SqlExceptionHelper" level="OFF"/>
+    <logger name="org.hibernate.dialect" level="OFF"/>
+    <logger name="org.hibernate.orm.deprecation" level="OFF"/>
+    <!-- H2 en tests : DDL jsonb / ajustements schéma → traces inutiles si les tests passent -->
+    <logger name="org.hibernate.tool.schema" level="OFF"/>
+    <logger name="org.springframework.boot.autoconfigure.orm.jpa.JpaBaseConfiguration" level="ERROR"/>
+    <logger name="com.agora.service.impl.resource.ResourceServiceImpl" level="ERROR"/>
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

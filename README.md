@@ -99,6 +99,46 @@ docker compose up -d
 
 - JAVA_HOME manquant: definis `JAVA_HOME` ou garde Java accessible via `PATH`.
 
+## Tests et qualité
+
+### Tests unitaires et d’intégration
+
+```bash
+./mvnw test
+```
+
+Les tests `@Tag("security-web")` et les tests d’intégration sont inclus dans le même module ; la configuration Surefire écrit les logs détaillés dans `target/surefire-reports/`.
+
+### Couverture de code (JaCoCo)
+
+Après les tests, le rapport HTML est généré lors de la phase `verify` :
+
+```bash
+./mvnw verify
+open target/site/jacoco/index.html   # macOS
+```
+
+Un résumé CSV est disponible : `target/site/jacoco/jacoco.csv`.
+
+**Contrôle automatique** : `jacoco:check` impose un ratio minimal de lignes sur le bundle (propriété `jacoco.bundle.line.minimum`, par défaut ~0,52) et des **seuils élevés** sur les packages `com.agora.service.impl.*` déjà bien couverts (≥85–95 % selon le package). Toute régression fait échouer `verify`.
+
+Les classes sous `com.agora.config.seed` sont exclues du rapport (données de démo).
+
+### Tests de mutation (PIT)
+
+PIT est activé via le profil Maven `pitest` (périmètre restreint : services liste d’attente / superadmin admin-support, formatage remise, désérialiseur d’heure).
+
+```bash
+./mvnw -P pitest test-compile org.pitest:pitest-maven:mutationCoverage
+open target/pit-reports/index.html
+```
+
+Seuils configurés dans le profil : couverture des lignes mutées et score de mutation (voir `pom.xml`). En cas d’échec, le rapport HTML indique les mutants survivants.
+
+### Objectif de couverture globale
+
+La couverture **globale** du dépôt (~50 % lignes hors exclusions) augmente avec les tests admin/API ; l’objectif documenté pour la soutenance est **≥90 % sur les services métier critiques** (`service.impl`, règles JaCoCo par package ci-dessus).
+
 ## Architecture
 
 ```
